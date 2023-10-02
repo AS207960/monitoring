@@ -148,6 +148,7 @@ class AlertGroupAddTelegram(forms.Form):
 
 class CreateMonitorPing(forms.Form):
     name = forms.CharField(required=True)
+    alert_group = forms.ModelChoiceField(queryset=None, required=True)
     target = forms.ModelChoiceField(queryset=None, required=True)
 
     def __init__(self, *args, user, **kwargs):
@@ -155,6 +156,7 @@ class CreateMonitorPing(forms.Form):
 
         access_token = django_keycloak_auth.clients.get_active_access_token(oidc_profile=user.oidc_profile)
         self.fields['target'].queryset = models.Target.get_object_list(access_token)
+        self.fields['alert_group'].queryset = models.AlertGroup.get_object_list(access_token)
 
         self.helper = crispy_forms.helper.FormHelper()
         self.helper.use_custom_control = False
@@ -163,6 +165,7 @@ class CreateMonitorPing(forms.Form):
         self.helper.field_class = 'col-lg-9 my-1'
         self.helper.layout = crispy_forms.layout.Layout(
             'name',
+            'alert_group',
             'target'
         )
 
@@ -171,6 +174,7 @@ class CreateMonitorPing(forms.Form):
 
 class CreateMonitorPort(forms.Form):
     name = forms.CharField(required=True)
+    alert_group = forms.ModelChoiceField(queryset=None, required=True)
     target = forms.ModelChoiceField(queryset=None, required=True)
     port = forms.IntegerField(required=True, min_value=1, max_value=65535)
 
@@ -179,6 +183,7 @@ class CreateMonitorPort(forms.Form):
 
         access_token = django_keycloak_auth.clients.get_active_access_token(oidc_profile=user.oidc_profile)
         self.fields['target'].queryset = models.Target.get_object_list(access_token)
+        self.fields['alert_group'].queryset = models.AlertGroup.get_object_list(access_token)
 
         self.helper = crispy_forms.helper.FormHelper()
         self.helper.use_custom_control = False
@@ -187,6 +192,7 @@ class CreateMonitorPort(forms.Form):
         self.helper.field_class = 'col-lg-9 my-1'
         self.helper.layout = crispy_forms.layout.Layout(
             'name',
+            'alert_group',
             'target',
             'port'
         )
@@ -196,6 +202,7 @@ class CreateMonitorPort(forms.Form):
 
 class CreateMonitorStartTLS(forms.Form):
     name = forms.CharField(required=True)
+    alert_group = forms.ModelChoiceField(queryset=None, required=True)
     target = forms.ModelChoiceField(queryset=None, required=True)
     port = forms.IntegerField(required=True, min_value=1, max_value=65535)
     tls = forms.ChoiceField(required=False, initial=True, label='TLS', choices=(
@@ -209,6 +216,7 @@ class CreateMonitorStartTLS(forms.Form):
 
         access_token = django_keycloak_auth.clients.get_active_access_token(oidc_profile=user.oidc_profile)
         self.fields['target'].queryset = models.Target.get_object_list(access_token)
+        self.fields['alert_group'].queryset = models.AlertGroup.get_object_list(access_token)
 
         self.helper = crispy_forms.helper.FormHelper()
         self.helper.use_custom_control = False
@@ -217,6 +225,7 @@ class CreateMonitorStartTLS(forms.Form):
         self.helper.field_class = 'col-lg-9 my-1'
         self.helper.layout = crispy_forms.layout.Layout(
             'name',
+            'alert_group',
             'target',
             'port',
             'tls'
@@ -227,6 +236,7 @@ class CreateMonitorStartTLS(forms.Form):
 
 class CreateMonitorHTTP(forms.Form):
     name = forms.CharField(required=True)
+    alert_group = forms.ModelChoiceField(queryset=None, required=True)
     target = forms.ModelChoiceField(queryset=None, required=True)
     port = forms.IntegerField(required=True, min_value=1, max_value=65535)
     hostname = forms.CharField(required=True)
@@ -237,6 +247,7 @@ class CreateMonitorHTTP(forms.Form):
 
         access_token = django_keycloak_auth.clients.get_active_access_token(oidc_profile=user.oidc_profile)
         self.fields['target'].queryset = models.Target.get_object_list(access_token)
+        self.fields['alert_group'].queryset = models.AlertGroup.get_object_list(access_token)
 
         self.helper = crispy_forms.helper.FormHelper()
         self.helper.use_custom_control = False
@@ -245,6 +256,7 @@ class CreateMonitorHTTP(forms.Form):
         self.helper.field_class = 'col-lg-9 my-1'
         self.helper.layout = crispy_forms.layout.Layout(
             'name',
+            'alert_group',
             'target',
             'port',
             'hostname',

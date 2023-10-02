@@ -16,6 +16,7 @@ urlpatterns = [
 
     path("alert_group/new/", views.create_alert_group, name="create_alert_group"),
     path("alert_group/<ag_id>/", views.view_alert_group, name="alert_group"),
+    path("alert_group/<ag_id>/delete/", views.delete_alert_group, name="delete_alert_group"),
     path("alert_group/<ag_id>/add_email/", views.alert_group_add_email, name="alert_group_add_email"),
     path("alert_group/<ag_id>/add_sms/", views.alert_group_add_sms, name="alert_group_add_sms"),
     path("alert_group/<ag_id>/add_pushover/", views.alert_group_add_pushover, name="alert_group_add_pushover"),
@@ -27,6 +28,7 @@ urlpatterns = [
 
     path("monitoring_admin/", views.admin_index, name="admin_index"),
     path("monitoring_admin/target/new/", views.admin_create_target, name="admin_create_target"),
+    path("monitoring_admin/target/<target_id>/delete/", views.admin_delete_target, name="admin_delete_target"),
 
     path("webhook/telegram/", views.telegram_webhook),
     path("blackbox_sd/", views.blackbox_sd),

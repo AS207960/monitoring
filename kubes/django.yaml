@@ -15,10 +15,14 @@ data:
   S3_ENDPOINT: "https://s3.as207960.net"
   S3_REGION: "garage"
   S3_BUCKET: "monitoring-django"
-  S3_ACCESS_KEY_ID: "<todo>"
+  S3_ACCESS_KEY_ID: "GKb452798725abeccca18adc45"
   S3_CUSTOM_DOMAIN: "monitoring-django.content.as207960.net"
   STATIC_URL: "https://monitoring-django.content.as207960.net/"
   MEDIA_URL: "https://monitoring-django.content.as207960.net/"
+  EMAIL_HOST: "mx.postal.as207960.net"
+  EMAIL_PORT: "25"
+  EMAIL_FROM: "Glauca Monitoring <monitoring@glauca.digital>"
+  EMAIL_HOST_USER: "as207960/main"
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -44,7 +48,6 @@ spec:
       initContainers:
         - name: django
           image: as207960/monitoring-django:(version)
-          imagePullPolicy: Always
           command: ["sh", "-c", "python3 manage.py collectstatic --noinput && python3 manage.py migrate && python3 manage.py sync-keycloak"]
           envFrom: &env
             - configMapRef:
@@ -58,7 +61,19 @@ spec:
                 name: monitoring-keycloak
               prefix: "KEYCLOAK_"
             - secretRef:
+                name: monitoring-webhook-key
+              prefix: "WEBHOOK_SECRET_"
+            - secretRef:
                 name: monitoring-s3
+            - secretRef:
+                name: monitoring-email
+              prefix: "EMAIL_"
+            - secretRef:
+                name: monitoring-pushover
+              prefix: "PUSHOVER_"
+            - secretRef:
+                name: monitoring-telegram
+              prefix: "TELEGRAM_"
       containers:
         - name: gunicorn
           image: as207960/monitoring-django:(version)

@@ -1,0 +1,15 @@
+{% extends "monitoring/base.html" %}
+
+{% block content %}
+    <div class="container">
+        <h1>Delete target</h1>
+        <h2>Target: {{ target }}</h2>
+        <form action="" method="post">
+            {% csrf_token %}
+            <div class="btn-group">
+                <a href="{% url 'admin_index' %}" class="btn btn-secondary btn-lg">Cancel</a>
+                <button type="submit" name="delete" value="true" class="btn btn-danger btn-lg">Delete</button>
+            </div>
+        </form>
+    </div>
+{% endblock %}

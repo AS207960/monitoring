@@ -201,6 +201,7 @@ class Monitor(models.Model):
     id = as207960_utils.models.TypedUUIDField("monitoring_monitor", primary_key=True)
     name = models.CharField(max_length=255)
     target = models.ForeignKey(Target, on_delete=models.CASCADE)
+    alert_group = models.ForeignKey(AlertGroup, on_delete=models.CASCADE)
     monitor_type = models.CharField(max_length=32, choices=TYPES)
     monitor_data = models.JSONField()
     resource_id = models.UUIDField(null=True, db_index=True)

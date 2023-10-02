@@ -25,6 +25,9 @@
                             <td>{{ target.name }}</td>
                             <td>{{ target.ip_address }}</td>
                             <td>{{ target.get_user.username }}</td>
+                            <td>
+                                <a href="{% url 'admin_delete_target' target.id %}" class="btn btn-danger">Delete</a>
+                            </td>
                         </tr>
                     {% endfor %}
                 {% else %}

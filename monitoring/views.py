@@ -58,6 +58,25 @@ def create_alert_group(request):
 
 
 @login_required
+@permission_required('monitoring.access_admin', raise_exception=True)
+def delete_alert_group(request, ag_id):
+    access_token = django_keycloak_auth.clients.get_active_access_token(oidc_profile=request.user.oidc_profile)
+    ag_obj = get_object_or_404(models.AlertGroup, id=ag_id)
+
+    if not ag_obj.has_scope(access_token, 'delete'):
+        raise PermissionDenied()
+
+    if request.method == "POST":
+        if request.POST.get("delete") == "true":
+            ag_obj.delete()
+            return redirect('index')
+
+    return render(request, "monitoring/delete_alert_group.html", {
+        "alert_group": ag_obj,
+    })
+
+
+@login_required
 def view_alert_group(request, ag_id):
     access_token = django_keycloak_auth.clients.get_active_access_token(oidc_profile=request.user.oidc_profile)
     ag_obj = get_object_or_404(models.AlertGroup, id=ag_id)
@@ -299,7 +318,7 @@ def alert_group_add_telegram(request, ag_id):
     else:
         form = forms.AlertGroupAddTelegram()
 
-    return render(request, "monitoring/alert_group_add_target.html", {
+    return render(request, "monitoring/alert_group_add_target_telegram.html", {
         "title": f"Add Telegram to alert group {ag_obj.name}",
         "form": form
     })
@@ -378,8 +397,27 @@ def admin_create_target(request):
     else:
         form = forms.CreateTarget()
 
-    return render(request, "monitoring/create_alert_group.html", {
+    return render(request, "monitoring/admin_create_target.html", {
         "form": form
+    })
+
+
+@login_required
+@permission_required('monitoring.access_admin', raise_exception=True)
+def admin_delete_target(request, target_id):
+    access_token = django_keycloak_auth.clients.get_active_access_token(oidc_profile=request.user.oidc_profile)
+    target_obj = get_object_or_404(models.Target, id=target_id)
+
+    if not target_obj.has_scope(access_token, 'delete'):
+        raise PermissionDenied()
+
+    if request.method == "POST":
+        if request.POST.get("delete") == "true":
+            target_obj.delete()
+            return redirect('index')
+
+    return render(request, "monitoring/admin_delete_target.html", {
+        "target": target_obj,
     })
 
 
@@ -433,6 +471,7 @@ def create_monitor_ping(request):
             monitor = models.Monitor(
                 name=form.cleaned_data["name"],
                 target=form.cleaned_data["target"],
+                alert_group=form.cleaned_data["alert_group"],
                 monitor_type=models.Monitor.TYPE_PING,
                 monitor_data={},
                 user=request.user
@@ -462,6 +501,7 @@ def create_monitor_tcp(request):
             monitor = models.Monitor(
                 name=form.cleaned_data["name"],
                 target=form.cleaned_data["target"],
+                alert_group=form.cleaned_data["alert_group"],
                 monitor_type=models.Monitor.TYPE_TCP,
                 monitor_data={
                     "port": form.cleaned_data["port"]
@@ -493,6 +533,7 @@ def create_monitor_tls(request):
             monitor = models.Monitor(
                 name=form.cleaned_data["name"],
                 target=form.cleaned_data["target"],
+                alert_group=form.cleaned_data["alert_group"],
                 monitor_type=models.Monitor.TYPE_TLS,
                 monitor_data={
                     "port": form.cleaned_data["port"]
@@ -524,6 +565,7 @@ def create_monitor_imap(request):
             monitor = models.Monitor(
                 name=form.cleaned_data["name"],
                 target=form.cleaned_data["target"],
+                alert_group=form.cleaned_data["alert_group"],
                 monitor_type=models.Monitor.TYPE_IMAP,
                 monitor_data={
                     "port": form.cleaned_data["port"],
@@ -557,6 +599,7 @@ def create_monitor_pop3(request):
             monitor = models.Monitor(
                 name=form.cleaned_data["name"],
                 target=form.cleaned_data["target"],
+                alert_group=form.cleaned_data["alert_group"],
                 monitor_type=models.Monitor.TYPE_POP3,
                 monitor_data={
                     "port": form.cleaned_data["port"],
@@ -590,6 +633,7 @@ def create_monitor_smtp(request):
             monitor = models.Monitor(
                 name=form.cleaned_data["name"],
                 target=form.cleaned_data["target"],
+                alert_group=form.cleaned_data["alert_group"],
                 monitor_type=models.Monitor.TYPE_SMTP,
                 monitor_data={
                     "port": form.cleaned_data["port"],
@@ -623,6 +667,7 @@ def create_monitor_http(request):
             monitor = models.Monitor(
                 name=form.cleaned_data["name"],
                 target=form.cleaned_data["target"],
+                alert_group=form.cleaned_data["alert_group"],
                 monitor_type=models.Monitor.TYPE_HTTP,
                 monitor_data={
                     "port": form.cleaned_data["port"],
@@ -657,6 +702,7 @@ def create_monitor_ssh(request):
             monitor = models.Monitor(
                 name=form.cleaned_data["name"],
                 target=form.cleaned_data["target"],
+                alert_group=form.cleaned_data["alert_group"],
                 monitor_type=models.Monitor.TYPE_SSH,
                 monitor_data={
                     "port": form.cleaned_data["port"],

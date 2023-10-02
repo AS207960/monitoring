@@ -76,6 +76,7 @@
                             <th scope="row">{{ alert_group.name }}</th>
                             <td>
                                 <a href="{% url 'alert_group' alert_group.id %}" class="btn btn-primary">View</a>
+                                <a href="{% url 'delete_alert_group' alert_group.id %}" class="btn btn-danger">Delete</a>
                             </td>
                         </tr>
                     {% endfor %}
