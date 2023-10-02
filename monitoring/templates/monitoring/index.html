@@ -13,6 +13,7 @@
                     <th>Name</th>
                     <th>Target</th>
                     <th>Type</th>
+                    <th>Group</th>
                     <th></th>
                 </tr>
                 </thead>
@@ -26,6 +27,7 @@
                                 <b>{{ monitor.get_monitor_type_display }}</b><br/>
                                 {{ monitor.info|linebreaksbr }}
                             </td>
+                            <td>{{ monitor.alert_group }}</td>
                             <td>
                                 {% if monitor|can_delete:access_token %}
                                     <a href="{% url 'delete_monitor' monitor.id %}" class="btn btn-danger">Delete</a>
@@ -35,7 +37,7 @@
                     {% endfor %}
                 {% else %}
                     <tr>
-                        <td colspan="4">No monitors</td>
+                        <td colspan="5">No monitors</td>
                     </tr>
                 {% endif %}
                 </tbody>
@@ -76,7 +78,9 @@
                             <th scope="row">{{ alert_group.name }}</th>
                             <td>
                                 <a href="{% url 'alert_group' alert_group.id %}" class="btn btn-primary">View</a>
-                                <a href="{% url 'delete_alert_group' alert_group.id %}" class="btn btn-danger">Delete</a>
+                                {% if alert_group|can_delete:access_token %}
+                                    <a href="{% url 'delete_alert_group' alert_group.id %}" class="btn btn-danger">Delete</a>
+                                {% endif %}
                             </td>
                         </tr>
                     {% endfor %}
