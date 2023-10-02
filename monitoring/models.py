@@ -59,6 +59,9 @@ class AlertGroup(models.Model):
             return self.user
         return as207960_utils.models.get_resource_owner(self.resource_id)
 
+    def __str__(self):
+        return self.name
+
 
 class AlertTarget(models.Model):
     TYPE_EMAIL = "email"
