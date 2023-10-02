@@ -1,0 +1,39 @@
+{% extends "monitoring/base.html" %}
+
+{% block content %}
+    <div class="container">
+        <h2>
+            Targets
+            {% if can_create_target %}
+                <a href="{% url 'admin_create_target' %}" class="btn btn-success">New</a>
+            {% endif %}
+        </h2>
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead class="table-dark">
+                <tr>
+                    <th>Name</th>
+                    <th>IP Address</th>
+                    <th>User</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                {% if targets %}
+                    {% for target in targets %}
+                        <tr>
+                            <td>{{ target.name }}</td>
+                            <td>{{ target.ip_address }}</td>
+                            <td>{{ target.get_user.username }}</td>
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="4">No targets</td>
+                    </tr>
+                {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}

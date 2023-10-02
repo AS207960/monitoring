@@ -1,0 +1,130 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: monitoring-django-conf
+data:
+  HOST: "monitoring.glauca.digital"
+  DJANGO_SETTINGS_MODULE: "as207960_monitoring.settings"
+  EXTERNAL_URL: "https://monitoring.glauca.digital"
+  KEYCLOAK_SERVER_URL: "https://sso.as207960.net/"
+  KEYCLOAK_REALM: "master"
+  KEYCLOAK_SCOPES: "openid email profile"
+  KEYCLOAK_CLIENT_ID: "monitoring"
+  DB_HOST: "cockroachdb"
+  DB_NAME: "monitoring"
+  S3_ENDPOINT: "https://s3.as207960.net"
+  S3_REGION: "garage"
+  S3_BUCKET: "monitoring-django"
+  S3_ACCESS_KEY_ID: "<todo>"
+  S3_CUSTOM_DOMAIN: "monitoring-django.content.as207960.net"
+  STATIC_URL: "https://monitoring-django.content.as207960.net/"
+  MEDIA_URL: "https://monitoring-django.content.as207960.net/"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: monitoring-django
+  labels:
+    app: monitoring
+    part: django
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: monitoring
+      part: django
+  template:
+    metadata:
+      annotations:
+        cni.projectcalico.org/ipv6pools: "[\"default-ipv6-ippool\"]"
+      labels:
+        app: monitoring
+        part: django
+    spec:
+      initContainers:
+        - name: django
+          image: as207960/monitoring-django:(version)
+          imagePullPolicy: Always
+          command: ["sh", "-c", "python3 manage.py collectstatic --noinput && python3 manage.py migrate && python3 manage.py sync-keycloak"]
+          envFrom: &env
+            - configMapRef:
+                name: monitoring-django-conf
+            - secretRef:
+                name: monitoring-db-creds
+              prefix: "DB_"
+            - secretRef:
+                name: monitoring-django-secret
+            - secretRef:
+                name: monitoring-keycloak
+              prefix: "KEYCLOAK_"
+            - secretRef:
+                name: monitoring-s3
+      containers:
+        - name: gunicorn
+          image: as207960/monitoring-django:(version)
+          command: ["gunicorn", "-w", "8", "-b", "[::]:8000", "--forwarded-allow-ips", "*", "--access-logfile", "-", "--log-level=debug", "--timeout=90", "as207960_monitoring.wsgi:application"]
+          ports:
+            - containerPort: 8000
+          envFrom: *env
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: monitoring-django
+  labels:
+    app: monitoring
+    part: django
+spec:
+  selector:
+    app: monitoring
+    part: django
+  ports:
+    - port: 8000
+      targetPort: 8000
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: monitoring-django
+spec:
+  podSelector:
+    matchLabels:
+      app: monitoring
+      part: django
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              app.kubernetes.io/name: ingress-nginx
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: ingress-nginx
+      ports:
+        - protocol: TCP
+          port: 8000
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: monitoring-ingress
+  annotations:
+    cert-manager.io/cluster-issuer: "gts"
+    nginx.ingress.kubernetes.io/proxy-body-size: "0"
+spec:
+  tls:
+    - hosts:
+        - monitoring.glauca.digital
+      secretName: monitoring-tls
+  rules:
+    - host: monitoring.glauca.digital
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: monitoring-django
+                port:
+                  number: 8000

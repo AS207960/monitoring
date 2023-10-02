@@ -1,0 +1,15 @@
+Django==4.2.*
+psycopg2-binary
+gunicorn
+django-crispy-forms
+crispy-bootstrap4
+django-phonenumber-field[phonenumbers]
+django-xff
+requests
+celery
+django-cockroachdb==4.2.*
+git+https://github.com/AS207960/python-utils@081bb7787dbecb873d0f2d7f17a3bffe32a16bf1
+django-storages
+boto3
+base32-crockford
+cryptography

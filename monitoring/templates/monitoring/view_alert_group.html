@@ -1,0 +1,51 @@
+{% extends "monitoring/base.html" %}
+
+{% block content %}
+    <div class="container">
+        <h1>Alert group: {{ alert_group.name }}</h1>
+        <h2>Targets</h2>
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead class="table-dark">
+                <tr>
+                    <th>Type</th>
+                    <th>Recipient</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                {% if targets %}
+                    {% for target in targets %}
+                        <tr>
+                            <th scope="row">{{ target.get_target_type_display }}</th>
+                            <td>{{ target.recipient }}</td>
+                            <td>
+                                {% if can_edit %}
+                                    <a href="{% url 'alert_group_delete_target' target.id %}" class="btn btn-danger">Delete</a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="3">No targets</td>
+                    </tr>
+                {% endif %}
+                </tbody>
+            </table>
+        </div>
+        {% if can_edit %}
+            <hr/>
+            <h2>Add target</h2>
+            <div class="btn-group">
+                <a href="{% url 'alert_group_add_email' alert_group.id %}" class="btn btn-lg btn-primary">Email</a>
+                <a href="{% url 'alert_group_add_sms' alert_group.id %}" class="btn btn-lg btn-primary">SMS</a>
+                <a href="{% url 'alert_group_add_pushover' alert_group.id %}" class="btn btn-lg btn-primary">Pushover</a>
+                <a href="{% url 'alert_group_add_discord' alert_group.id %}" class="btn btn-lg btn-primary">Discord</a>
+                <a href="{% url 'alert_group_add_slack' alert_group.id %}" class="btn btn-lg btn-primary">Slack</a>
+                <a href="{% url 'alert_group_add_telegram' alert_group.id %}" class="btn btn-lg btn-primary">Telegram</a>
+                <a href="{% url 'alert_group_add_webhook' alert_group.id %}" class="btn btn-lg btn-primary">Webhook</a>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}

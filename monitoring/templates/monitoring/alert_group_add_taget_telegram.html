@@ -1,0 +1,12 @@
+{% extends "monitoring/base.html" %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+    <div class="container">
+        <h1>{{ title }}</h1>
+        <p class="lead">
+            Message <a href="https://t.me/glauca_monitoring_bot">@glauca_monitoring_bot</a> or add it to a group to receive your link code.
+        </p>
+        {% crispy form %}
+    </div>
+{% endblock %}

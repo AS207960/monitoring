@@ -1,0 +1,119 @@
+{% extends "monitoring/base.html" %}
+{% load model_perms %}
+
+{% block content %}
+    <div class="container">
+        <h2>
+            Monitors
+        </h2>
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead class="table-dark">
+                <tr>
+                    <th>Name</th>
+                    <th>Target</th>
+                    <th>Type</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                {% if monitors %}
+                    {% for monitor in monitors %}
+                        <tr>
+                            <th scope="row">{{ monitor.name }}</th>
+                            <td>{{ monitor.target }}</td>
+                            <td>
+                                <b>{{ monitor.get_monitor_type_display }}</b><br/>
+                                {{ monitor.info|linebreaksbr }}
+                            </td>
+                            <td>
+                                {% if monitor|can_delete:access_token %}
+                                    <a href="{% url 'delete_monitor' monitor.id %}" class="btn btn-danger">Delete</a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="4">No monitors</td>
+                    </tr>
+                {% endif %}
+                </tbody>
+            </table>
+        </div>
+        {% if can_create_monitor %}
+            <h3>New monitor</h3>
+            <div class="btn-group">
+                <a href="{% url 'create_monitor_ping' %}" class="btn btn-primary">Ping (ICMP)</a>
+                <a href="{% url 'create_monitor_tcp' %}" class="btn btn-primary">TCP</a>
+                <a href="{% url 'create_monitor_tls' %}" class="btn btn-primary">TLS</a>
+                <a href="{% url 'create_monitor_imap' %}" class="btn btn-primary">IMAP</a>
+                <a href="{% url 'create_monitor_pop3' %}" class="btn btn-primary">POP3</a>
+                <a href="{% url 'create_monitor_smtp' %}" class="btn btn-primary">SMTP</a>
+                <a href="{% url 'create_monitor_http' %}" class="btn btn-primary">HTTP</a>
+                <a href="{% url 'create_monitor_ssh' %}" class="btn btn-primary">SSH</a>
+            </div>
+        {% endif %}
+        <hr>
+        <h2>
+            Alert groups
+            {% if can_create_alert_group %}
+                <a href="{% url 'create_alert_group' %}" class="btn btn-success">New</a>
+            {% endif %}
+        </h2>
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead class="table-dark">
+                <tr>
+                    <th>Name</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                {% if alert_groups %}
+                    {% for alert_group in alert_groups %}
+                        <tr>
+                            <th scope="row">{{ alert_group.name }}</th>
+                            <td>
+                                <a href="{% url 'alert_group' alert_group.id %}" class="btn btn-primary">View</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="2">No alert groups</td>
+                    </tr>
+                {% endif %}
+                </tbody>
+            </table>
+        </div>
+        <hr>
+        <h2>
+            Targets
+        </h2>
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead class="table-dark">
+                <tr>
+                    <th>Name</th>
+                    <th>IP Address</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% if targets %}
+                    {% for target in targets %}
+                        <tr>
+                            <th scope="row">{{ target.name }}</th>
+                            <td>{{ target.ip_address }}</td>
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="2">No targets</td>
+                    </tr>
+                {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}
