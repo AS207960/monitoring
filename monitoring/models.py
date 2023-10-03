@@ -207,6 +207,7 @@ class Monitor(models.Model):
     alert_group = models.ForeignKey(AlertGroup, on_delete=models.CASCADE)
     monitor_type = models.CharField(max_length=32, choices=TYPES)
     monitor_data = models.JSONField()
+    firing = models.BooleanField(blank=True, null=False, default=False)
     resource_id = models.UUIDField(null=True, db_index=True)
 
     class Meta:

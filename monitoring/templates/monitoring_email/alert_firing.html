@@ -1,0 +1,25 @@
+{% extends "monitoring_email/email_base.html" %}
+{% block subject %}Monitor firing{% endblock %}
+{% block content %}
+    <table style="width:100%;background:#ed7878;border-radius:5px;padding:20px;margin-top: 25px;">
+        <tbody>
+        {% if annotations.summary %}
+            <tr style="padding:5px;">
+                <th>Summary</th>
+                <td>{{ summary }}</td>
+            </tr>
+        {% endif %}
+        <tr style="padding:5px;">
+            <th>Monitor name</th>
+            <td>{{ alert_name }}</td>
+        </tr>
+        <tr style="padding:5px;">
+            <th>Monitor type</th>
+            <td>{{ alert_type }}</td>
+        </tr>
+        <tr style="padding:5px;">
+            <th>Target</th>
+            <td>{{ target }}</td>
+        </tr>
+    </table>
+{% endblock %}

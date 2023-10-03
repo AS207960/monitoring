@@ -162,4 +162,6 @@ WEBHOOK_SECRET_KEY = cryptography.hazmat.primitives.asymmetric.ed25519.Ed25519Pr
     base64.b64decode(webhook_conf["secret_key"])
 )
 
+ALERT_WEBHOOK_TOKEN = webhook_conf["alert_token"]
+
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")

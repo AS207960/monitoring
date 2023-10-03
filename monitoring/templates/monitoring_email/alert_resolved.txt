@@ -1,0 +1,8 @@
+{% extends "monitoring_email/email_base.txt" %}
+{% block content %}
+Your configured monitor called {{ alert_name }} is no longer firing. The details of the monitor are below.
+
+{% if annotations.summary %}Summary: {{ summary }}
+{% endif %}Monitor type: {{ alert_type }}
+Target: {{ target }}
+{% endblock %}

@@ -31,6 +31,7 @@ urlpatterns = [
     path("monitoring_admin/target/<target_id>/delete/", views.admin_delete_target, name="admin_delete_target"),
 
     path("webhook/telegram/", views.telegram_webhook),
+    path("webhook/alert/", views.alert_webhook),
     path("blackbox_sd/", views.blackbox_sd),
 ]
 

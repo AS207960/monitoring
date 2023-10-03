@@ -1,0 +1,23 @@
+<html lang="en">
+<body style="padding: 0;margin: 0">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" type="text/css">
+<div style="background-color: #2a4365; background: linear-gradient(270deg, #319795, #2a4365, #3182ce); font-family: 'Montserrat', sans-serif, 'Noto Color Emoji', 'Apple Color Emoji';height: 100% !important;width: 100% !important;">
+    <div style="padding: 40px;">
+        <table role="presentation" style="margin: 0 auto; max-width: 600px; width:100%; border: 1px solid rgba(0, 0, 0, 0.125); border-spacing: 0; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); border-radius: 0.5rem; background-color: #EBF8FF;">
+            <tr>
+                <td style="border-bottom: 1px solid #dee7eb; text-align: center;padding: 20px 0;">
+                    <img src="https://as207960.net/assets/img/logo2.png" height="150px" alt="Glauca" />
+                    <h1 style="margin-bottom: 0;">{% block subject %}{% endblock %}</h1>
+                    <h2 style="margin-top: 0;">Glauca Monitoring</h2>
+                </td>
+            </tr>
+            <tr>
+                <td style="padding: 20px;">
+                    {% block content %}{% endblock %}
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+</body>
+</html>

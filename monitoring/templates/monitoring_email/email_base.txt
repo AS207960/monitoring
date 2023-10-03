@@ -1,0 +1,4 @@
+{% block content %}{% endblock %}
+Thanks,
+The Glauca Team
+https://glauca.digital

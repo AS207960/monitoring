@@ -1,3 +1,6 @@
+import datetime
+import ipaddress
+
 import django_keycloak_auth.clients
 from django.conf import settings
 from django.shortcuts import render, redirect, get_object_or_404
@@ -528,7 +531,7 @@ def create_monitor_tls(request):
         raise PermissionDenied()
 
     if request.method == "POST":
-        form = forms.CreateMonitorPort(request.POST, user=request.user)
+        form = forms.CreateMonitorTLS(request.POST, user=request.user)
         if form.is_valid():
             monitor = models.Monitor(
                 name=form.cleaned_data["name"],
@@ -536,14 +539,15 @@ def create_monitor_tls(request):
                 alert_group=form.cleaned_data["alert_group"],
                 monitor_type=models.Monitor.TYPE_TLS,
                 monitor_data={
-                    "port": form.cleaned_data["port"]
+                    "port": form.cleaned_data["port"],
+                    "hostname": form.cleaned_data["hostname"],
                 },
                 user=request.user
             )
             monitor.save()
             return redirect('index')
     else:
-        form = forms.CreateMonitorPort(user=request.user)
+        form = forms.CreateMonitorTLS(user=request.user)
 
     return render(request, "monitoring/create_monitor.html", {
         "title": f"Create TLS monitor",
@@ -757,6 +761,11 @@ def blackbox_sd(request):
     configs = []
 
     for monitor in models.Monitor.objects.all():
+        if isinstance(monitor.target.ip_address, ipaddress.IPv6Address):
+            formatted_ip = f"[{monitor.target.ip_address}]"
+        else:
+            formatted_ip = str(monitor.target.ip_address)
+
         if monitor.monitor_type == models.Monitor.TYPE_PING:
             configs.append({
                 "targets": [monitor.target.ip_address],
@@ -768,7 +777,7 @@ def blackbox_sd(request):
             })
         elif monitor.monitor_type == models.Monitor.TYPE_TCP:
             configs.append({
-                "targets": [f"{monitor.target.ip_address}:{monitor.monitor_data['port']}"],
+                "targets": [f"{formatted_ip}:{monitor.monitor_data['port']}"],
                 "labels": {
                     "monitor_id": str(monitor.id),
                     "monitor": "tcp",
@@ -777,11 +786,12 @@ def blackbox_sd(request):
             })
         elif monitor.monitor_type == models.Monitor.TYPE_TLS:
             configs.append({
-                "targets": [f"{monitor.target.ip_address}:{monitor.monitor_data['port']}"],
+                "targets": [f"{formatted_ip}:{monitor.monitor_data['port']}"],
                 "labels": {
                     "monitor_id": str(monitor.id),
                     "monitor": "tls",
-                    "__param_module": "tls_connect"
+                    "__param_module": "tls_connect",
+                    "__param_hostname": monitor.monitor_data['hostname']
                 }
             })
         elif monitor.monitor_type == models.Monitor.TYPE_IMAP:
@@ -794,7 +804,7 @@ def blackbox_sd(request):
             else:
                 continue
             configs.append({
-                "targets": [f"{monitor.target.ip_address}:{monitor.monitor_data['port']}"],
+                "targets": [f"{formatted_ip}:{monitor.monitor_data['port']}"],
                 "labels": {
                     "monitor_id": str(monitor.id),
                     "monitor": "imap",
@@ -811,7 +821,7 @@ def blackbox_sd(request):
             else:
                 continue
             configs.append({
-                "targets": [f"{monitor.target.ip_address}:{monitor.monitor_data['port']}"],
+                "targets": [f"{formatted_ip}:{monitor.monitor_data['port']}"],
                 "labels": {
                     "monitor_id": str(monitor.id),
                     "monitor": "pop3",
@@ -828,7 +838,7 @@ def blackbox_sd(request):
             else:
                 continue
             configs.append({
-                "targets": [f"{monitor.target.ip_address}:{monitor.monitor_data['port']}"],
+                "targets": [f"{formatted_ip}:{monitor.monitor_data['port']}"],
                 "labels": {
                     "monitor_id": str(monitor.id),
                     "monitor": "smtp",
@@ -837,9 +847,9 @@ def blackbox_sd(request):
             })
         elif monitor.monitor_type == models.Monitor.TYPE_HTTP:
             if monitor.monitor_data['tls']:
-                target = f"https://{monitor.target.ip_address}:{monitor.monitor_data['port']}"
+                target = f"https://{formatted_ip}:{monitor.monitor_data['port']}"
             elif monitor.monitor_data['tls'] == "tls":
-                target = f"http://{monitor.target.ip_address}:{monitor.monitor_data['port']}"
+                target = f"http://{formatted_ip}:{monitor.monitor_data['port']}"
             else:
                 continue
             configs.append({
@@ -853,7 +863,7 @@ def blackbox_sd(request):
             })
         elif monitor.monitor_type == models.Monitor.TYPE_SSH:
             configs.append({
-                "targets": [f"{monitor.target.ip_address}:{monitor.monitor_data['port']}"],
+                "targets": [f"{formatted_ip}:{monitor.monitor_data['port']}"],
                 "labels": {
                     "monitor_id": str(monitor.id),
                     "monitor": "ssh",
@@ -862,3 +872,43 @@ def blackbox_sd(request):
             })
 
     return HttpResponse(json.dumps(configs), content_type="application/json")
+
+
+@csrf_exempt
+def alert_webhook(request):
+    authorization_header = request.headers.get("Authorization")
+    if not authorization_header:
+        return HttpResponse("Authorization header missing", status=401)
+
+    if not authorization_header.startswith("Bearer "):
+        return HttpResponse("Authorization header invalid", status=401)
+
+    access_token = authorization_header[7:]
+    if access_token != settings.ALERT_WEBHOOK_TOKEN:
+        return HttpResponse("Permission denied", status=403)
+
+    try:
+        alert_data = json.loads(request.body)
+    except json.JSONDecodeError:
+        return HttpResponse("Invalid JSON", status=429)
+
+    if alert_data["version"] != "4":
+        return HttpResponse("Unsupported version", status=429)
+
+    for alert in alert_data["alerts"]:
+        monitor = models.Monitor.objects.filter(id=alert["labels"]["monitor_id"]).first() # type: models.Monitor
+        if not monitor:
+            continue
+
+        if alert["status"] == "firing":
+            starts_at = datetime.datetime.fromisoformat(alert["startsAt"])
+            monitor.firing = True
+            monitor.save()
+            tasks.monitor_firing.delay(monitor.id, starts_at, alert["annotations"])
+        elif alert["status"] == "resolved":
+            monitor.firing = False
+            monitor.save()
+            tasks.monitor_resolved.delay(monitor.id, alert["annotations"])
+
+    return HttpResponse("", status=202)
+
