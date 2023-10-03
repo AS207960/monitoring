@@ -762,6 +762,7 @@ def blackbox_sd(request):
                 "targets": [monitor.target.ip_address],
                 "labels": {
                     "monitor_id": str(monitor.id),
+                    "monitor": "icmp",
                     "__param_module": "icmp"
                 }
             })
@@ -770,6 +771,7 @@ def blackbox_sd(request):
                 "targets": [f"{monitor.target.ip_address}:{monitor.monitor_data['port']}"],
                 "labels": {
                     "monitor_id": str(monitor.id),
+                    "monitor": "tcp",
                     "__param_module": "tcp_connect"
                 }
             })
@@ -778,6 +780,7 @@ def blackbox_sd(request):
                 "targets": [f"{monitor.target.ip_address}:{monitor.monitor_data['port']}"],
                 "labels": {
                     "monitor_id": str(monitor.id),
+                    "monitor": "tls",
                     "__param_module": "tls_connect"
                 }
             })
@@ -794,6 +797,7 @@ def blackbox_sd(request):
                 "targets": [f"{monitor.target.ip_address}:{monitor.monitor_data['port']}"],
                 "labels": {
                     "monitor_id": str(monitor.id),
+                    "monitor": "imap",
                     "__param_module": module
                 }
             })
@@ -810,6 +814,7 @@ def blackbox_sd(request):
                 "targets": [f"{monitor.target.ip_address}:{monitor.monitor_data['port']}"],
                 "labels": {
                     "monitor_id": str(monitor.id),
+                    "monitor": "pop3",
                     "__param_module": module
                 }
             })
@@ -826,6 +831,7 @@ def blackbox_sd(request):
                 "targets": [f"{monitor.target.ip_address}:{monitor.monitor_data['port']}"],
                 "labels": {
                     "monitor_id": str(monitor.id),
+                    "monitor": "smtp",
                     "__param_module": module
                 }
             })
@@ -840,6 +846,7 @@ def blackbox_sd(request):
                 "targets": [target],
                 "labels": {
                     "monitor_id": str(monitor.id),
+                    "monitor": "http",
                     "__param_module": "http_2xx",
                     "__param_hostname": monitor.monitor_data['hostname']
                 }
@@ -849,6 +856,7 @@ def blackbox_sd(request):
                 "targets": [f"{monitor.target.ip_address}:{monitor.monitor_data['port']}"],
                 "labels": {
                     "monitor_id": str(monitor.id),
+                    "monitor": "ssh",
                     "__param_module": "ssh_banner"
                 }
             })
