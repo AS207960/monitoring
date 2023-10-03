@@ -39,7 +39,8 @@
             <h2>Add target</h2>
             <div class="btn-group">
                 <a href="{% url 'alert_group_add_email' alert_group.id %}" class="btn btn-lg btn-primary">Email</a>
-                <a href="{% url 'alert_group_add_sms' alert_group.id %}" class="btn btn-lg btn-primary">SMS</a>
+                <a href="#" class="btn btn-lg btn-secondary disabled">
+                    <span style="text-decoration: line-through;">SMS</span> Coming soon</a>
                 <a href="{% url 'alert_group_add_pushover' alert_group.id %}" class="btn btn-lg btn-primary">Pushover</a>
                 <a href="{% url 'alert_group_add_discord' alert_group.id %}" class="btn btn-lg btn-primary">Discord</a>
                 <a href="{% url 'alert_group_add_slack' alert_group.id %}" class="btn btn-lg btn-primary">Slack</a>
