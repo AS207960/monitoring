@@ -901,7 +901,7 @@ def alert_webhook(request):
             continue
 
         if alert["status"] == "firing":
-            starts_at = datetime.datetime.fromisoformat(alert["startsAt"])
+            starts_at = datetime.datetime.strptime(alert["startsAt"], '%Y-%m-%dT%H:%M:%S.%fZ')
             monitor.firing = True
             monitor.save()
             tasks.monitor_firing.delay(monitor.id, starts_at, alert["annotations"])
