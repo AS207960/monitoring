@@ -261,15 +261,21 @@ class Monitor(models.Model):
         elif self.monitor_type == self.TYPE_TCP:
             return f"Port: {self.monitor_data['port']}"
         elif self.monitor_type == self.TYPE_TLS:
-            return f"Port: {self.monitor_data['port']}"
+            return (f"Port: {self.monitor_data['port']}\n"
+                    f"Hostname: {self.monitor_data['hostname']}")
         elif self.monitor_type == self.TYPE_IMAP:
-            return f"Port: {self.monitor_data['port']}\nTLS: {self.monitor_data['tls']}"
+            return (f"Port: {self.monitor_data['port']}\n"
+                    f"TLS: {self.monitor_data['tls']}")
         elif self.monitor_type == self.TYPE_POP3:
-            return f"Port: {self.monitor_data['port']}\nTLS: {self.monitor_data['tls']}"
+            return (f"Port: {self.monitor_data['port']}\n"
+                    f"TLS: {self.monitor_data['tls']}")
         elif self.monitor_type == self.TYPE_SMTP:
-            return f"Port: {self.monitor_data['port']}\nTLS: {self.monitor_data['tls']}"
+            return (f"Port: {self.monitor_data['port']}\n"
+                    f"TLS: {self.monitor_data['tls']}")
         elif self.monitor_type == self.TYPE_HTTP:
-            return f"Port: {self.monitor_data['port']}\nTLS: {self.monitor_data['tls']}\nHostname: {self.monitor_data['hostname']}"
+            return (f"Port: {self.monitor_data['port']}\n"
+                    f"TLS: {self.monitor_data['tls']}\n"
+                    f"Hostname: {self.monitor_data['hostname']}")
         elif self.monitor_type == self.TYPE_SSH:
             return f"Port: {self.monitor_data['port']}"
 

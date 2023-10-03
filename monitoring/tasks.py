@@ -107,8 +107,8 @@ def monitor_resolved(monitor_id, annotations: dict):
     ignore_result=True
 )
 def email_firing(alert_data: dict, target_data: dict):
-    html_content = render_to_string("monitoring_email/alert_firing.txt", alert_data)
-    txt_content = render_to_string("monitoring_email/alert_firing.html", alert_data)
+    html_content = render_to_string("monitoring_email/alert_firing.html", alert_data)
+    txt_content = render_to_string("monitoring_email/alert_firing.txt", alert_data)
 
     email = EmailMultiAlternatives(
         subject=f"Monitor firing - {alert_data['alert_name']}",
@@ -124,8 +124,8 @@ def email_firing(alert_data: dict, target_data: dict):
     ignore_result=True
 )
 def email_resolved(alert_data: dict, target_data: dict):
-    html_content = render_to_string("monitoring_email/alert_resolved.txt", alert_data)
-    txt_content = render_to_string("monitoring_email/alert_resolved.html", alert_data)
+    html_content = render_to_string("monitoring_email/alert_resolved.html", alert_data)
+    txt_content = render_to_string("monitoring_email/alert_resolved.txt", alert_data)
 
     email = EmailMultiAlternatives(
         subject=f"Monitor no longer firing - {alert_data['alert_name']}",
