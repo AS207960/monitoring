@@ -2,7 +2,7 @@
 {% block content %}
 Your configured monitor called {{ alert_name }} is currently firing. The details of the monitor are below.
 
-{% if annotations.summary %}Summary: {{ summary }}
+{% if annotations.summary %}Summary: {{ annotations.summary }}
 {% endif %}Monitor type: {{ alert_type }}
 Target: {{ target }}
 {% endblock %}

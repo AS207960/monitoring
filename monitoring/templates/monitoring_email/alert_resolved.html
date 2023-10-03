@@ -1,12 +1,12 @@
 {% extends "monitoring_email/email_base.html" %}
 {% block subject %}Monitor no longer firing{% endblock %}
 {% block content %}
-    <table style="width:100%;background:#8ed7b0;border-radius:5px;padding:20px;margin-top: 25px;">
+    <table style="width:100%;background:#8ed7b0;border-radius:5px;padding:20px;">
         <tbody>
         {% if annotations.summary %}
             <tr style="padding:5px;">
                 <th>Summary</th>
-                <td>{{ summary }}</td>
+                <td>{{ annotations.summary }}</td>
             </tr>
         {% endif %}
         <tr style="padding:5px;">
