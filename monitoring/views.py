@@ -772,7 +772,7 @@ def blackbox_sd(request):
 
         if monitor.monitor_type == models.Monitor.TYPE_PING:
             configs.append({
-                "targets": [ip_address],
+                "targets": [str(ip_address)],
                 "labels": {
                     "monitor_id": str(monitor.id),
                     "monitor": "icmp",
