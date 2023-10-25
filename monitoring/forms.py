@@ -259,7 +259,8 @@ class CreateMonitorStartTLS(forms.Form):
             'alert_group',
             'target',
             'port',
-            'tls'
+            'tls',
+            'hostname',
         )
 
         self.helper.add_input(crispy_forms.layout.Submit('submit', 'Create'))
