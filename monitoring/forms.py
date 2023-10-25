@@ -240,6 +240,7 @@ class CreateMonitorStartTLS(forms.Form):
         ('starttls', 'STARTTLS'),
         ('tls', 'TLS')
     ))
+    hostname = forms.CharField(required=True)
 
     def __init__(self, *args, user, **kwargs):
         super().__init__(*args, **kwargs)

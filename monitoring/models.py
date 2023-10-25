@@ -265,13 +265,16 @@ class Monitor(models.Model):
                     f"Hostname: {self.monitor_data['hostname']}")
         elif self.monitor_type == self.TYPE_IMAP:
             return (f"Port: {self.monitor_data['port']}\n"
-                    f"TLS: {self.monitor_data['tls']}")
+                    f"TLS: {self.monitor_data['tls']}\n"
+                    f"Hostname: {self.monitor_data['hostname']}")
         elif self.monitor_type == self.TYPE_POP3:
             return (f"Port: {self.monitor_data['port']}\n"
-                    f"TLS: {self.monitor_data['tls']}")
+                    f"TLS: {self.monitor_data['tls']}\n"
+                    f"Hostname: {self.monitor_data['hostname']}")
         elif self.monitor_type == self.TYPE_SMTP:
             return (f"Port: {self.monitor_data['port']}\n"
-                    f"TLS: {self.monitor_data['tls']}")
+                    f"TLS: {self.monitor_data['tls']}\n"
+                    f"Hostname: {self.monitor_data['hostname']}")
         elif self.monitor_type == self.TYPE_HTTP:
             return (f"Port: {self.monitor_data['port']}\n"
                     f"TLS: {self.monitor_data['tls']}\n"

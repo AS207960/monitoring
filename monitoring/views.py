@@ -573,7 +573,8 @@ def create_monitor_imap(request):
                 monitor_type=models.Monitor.TYPE_IMAP,
                 monitor_data={
                     "port": form.cleaned_data["port"],
-                    "tls": form.cleaned_data["tls"]
+                    "tls": form.cleaned_data["tls"],
+                    "hostname": form.cleaned_data["hostname"],
                 },
                 user=request.user
             )
@@ -607,7 +608,8 @@ def create_monitor_pop3(request):
                 monitor_type=models.Monitor.TYPE_POP3,
                 monitor_data={
                     "port": form.cleaned_data["port"],
-                    "tls": form.cleaned_data["tls"]
+                    "tls": form.cleaned_data["tls"],
+                    "hostname": form.cleaned_data["hostname"],
                 },
                 user=request.user
             )
@@ -641,7 +643,8 @@ def create_monitor_smtp(request):
                 monitor_type=models.Monitor.TYPE_SMTP,
                 monitor_data={
                     "port": form.cleaned_data["port"],
-                    "tls": form.cleaned_data["tls"]
+                    "tls": form.cleaned_data["tls"],
+                    "hostname": form.cleaned_data["hostname"],
                 },
                 user=request.user
             )
@@ -809,7 +812,8 @@ def blackbox_sd(request):
                 "labels": {
                     "monitor_id": str(monitor.id),
                     "monitor": "imap",
-                    "__param_module": module
+                    "__param_module": module,
+                    "__param_hostname": monitor.monitor_data['hostname']
                 }
             })
         elif monitor.monitor_type == models.Monitor.TYPE_POP3:
@@ -826,7 +830,8 @@ def blackbox_sd(request):
                 "labels": {
                     "monitor_id": str(monitor.id),
                     "monitor": "pop3",
-                    "__param_module": module
+                    "__param_module": module,
+                    "__param_hostname": monitor.monitor_data['hostname']
                 }
             })
         elif monitor.monitor_type == models.Monitor.TYPE_SMTP:
@@ -843,7 +848,8 @@ def blackbox_sd(request):
                 "labels": {
                     "monitor_id": str(monitor.id),
                     "monitor": "smtp",
-                    "__param_module": module
+                    "__param_module": module,
+                    "__param_hostname": monitor.monitor_data['hostname']
                 }
             })
         elif monitor.monitor_type == models.Monitor.TYPE_HTTP:
