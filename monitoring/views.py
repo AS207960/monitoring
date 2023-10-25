@@ -417,7 +417,7 @@ def admin_delete_target(request, target_id):
     if request.method == "POST":
         if request.POST.get("delete") == "true":
             target_obj.delete()
-            return redirect('index')
+            return redirect('admin_index')
 
     return render(request, "monitoring/admin_delete_target.html", {
         "target": target_obj,
@@ -761,14 +761,15 @@ def blackbox_sd(request):
     configs = []
 
     for monitor in models.Monitor.objects.all():
-        if isinstance(monitor.target.ip_address, ipaddress.IPv6Address):
-            formatted_ip = f"[{monitor.target.ip_address}]"
+        ip_address = ipaddress.ip_address(monitor.target.ip_address)
+        if isinstance(ip_address, ipaddress.IPv6Address):
+            formatted_ip = f"[{ip_address}]"
         else:
-            formatted_ip = str(monitor.target.ip_address)
+            formatted_ip = str(ip_address)
 
         if monitor.monitor_type == models.Monitor.TYPE_PING:
             configs.append({
-                "targets": [monitor.target.ip_address],
+                "targets": [ip_address],
                 "labels": {
                     "monitor_id": str(monitor.id),
                     "monitor": "icmp",

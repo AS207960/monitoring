@@ -31,7 +31,7 @@ class CreateAlertGroup(forms.Form):
 class CreateTarget(forms.Form):
     name = forms.CharField(required=True)
     ip_address = forms.GenericIPAddressField(required=True, label='IP Address')
-    user = forms.CharField(required=False, label='User ID')
+    user = forms.CharField(required=True, label='User ID')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
