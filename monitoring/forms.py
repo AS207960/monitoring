@@ -296,3 +296,75 @@ class CreateMonitorHTTP(forms.Form):
         )
 
         self.helper.add_input(crispy_forms.layout.Submit('submit', 'Create'))
+
+
+class CreateMonitorDNS(forms.Form):
+    name = forms.CharField(required=True)
+    alert_group = forms.ModelChoiceField(queryset=None, required=True)
+    target = forms.ModelChoiceField(queryset=None, required=True)
+    port = forms.IntegerField(required=True, min_value=1, max_value=65535, initial=53)
+    zone = forms.CharField(required=True)
+    protocol = forms.ChoiceField(required=True, choices=(
+        ("udp", "UDP"),
+        ("tcp", "TCP"),
+    ))
+
+    def __init__(self, *args, user, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        access_token = django_keycloak_auth.clients.get_active_access_token(oidc_profile=user.oidc_profile)
+        self.fields['target'].queryset = models.Target.get_object_list(access_token)
+        self.fields['alert_group'].queryset = models.AlertGroup.get_object_list(access_token)
+
+        self.helper = crispy_forms.helper.FormHelper()
+        self.helper.use_custom_control = False
+        self.helper.form_class = 'form-horizontal'
+        self.helper.label_class = 'col-lg-3'
+        self.helper.field_class = 'col-lg-9 my-1'
+        self.helper.layout = crispy_forms.layout.Layout(
+            'name',
+            'alert_group',
+            'target',
+            'port',
+            'zone',
+            'protocol'
+        )
+
+        self.helper.add_input(crispy_forms.layout.Submit('submit', 'Create'))
+
+
+class CreateMonitorDNSSecondary(forms.Form):
+    name = forms.CharField(required=True)
+    alert_group = forms.ModelChoiceField(queryset=None, required=True)
+    target = forms.ModelChoiceField(queryset=None, required=True)
+    port = forms.IntegerField(required=True, min_value=1, max_value=65535, initial=53)
+    primary = forms.CharField(required=True, label='Primary Server (address:port)')
+    zone = forms.CharField(required=True)
+    protocol = forms.ChoiceField(required=True, choices=(
+        ("udp", "UDP"),
+        ("tcp", "TCP"),
+    ))
+
+    def __init__(self, *args, user, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        access_token = django_keycloak_auth.clients.get_active_access_token(oidc_profile=user.oidc_profile)
+        self.fields['target'].queryset = models.Target.get_object_list(access_token)
+        self.fields['alert_group'].queryset = models.AlertGroup.get_object_list(access_token)
+
+        self.helper = crispy_forms.helper.FormHelper()
+        self.helper.use_custom_control = False
+        self.helper.form_class = 'form-horizontal'
+        self.helper.label_class = 'col-lg-3'
+        self.helper.field_class = 'col-lg-9 my-1'
+        self.helper.layout = crispy_forms.layout.Layout(
+            'name',
+            'alert_group',
+            'target',
+            'port',
+            'primary',
+            'zone',
+            'protocol'
+        )
+
+        self.helper.add_input(crispy_forms.layout.Submit('submit', 'Create'))

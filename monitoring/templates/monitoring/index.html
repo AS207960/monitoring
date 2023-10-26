@@ -12,6 +12,7 @@
                     <th>Target</th>
                     <th>Type</th>
                     <th>Group</th>
+                    <th>State</th>
                     <th></th>
                 </tr>
                 </thead>
@@ -26,6 +27,13 @@
                                 {{ monitor.info|linebreaksbr }}
                             </td>
                             <td>{{ monitor.alert_group }}</td>
+                            <td>
+                                {% if monitor.firing %}
+                                    <span class="badge bg-danger">Firing</span>
+                                {% else %}
+                                    <span class="badge bg-success">OK</span>
+                                {% endif %}
+                            </td>
                             <td>
                                 {% if monitor|can_delete:access_token %}
                                     <a href="{% url 'delete_monitor' monitor.id %}" class="btn btn-danger">Delete</a>
@@ -52,6 +60,8 @@
                 <a href="{% url 'create_monitor_smtp' %}" class="btn btn-primary">SMTP</a>
                 <a href="{% url 'create_monitor_http' %}" class="btn btn-primary">HTTP</a>
                 <a href="{% url 'create_monitor_ssh' %}" class="btn btn-primary">SSH</a>
+{#                <a href="{% url 'create_monitor_dns' %}" class="btn btn-primary">DNS</a>#}
+{#                <a href="{% url 'create_monitor_dns_secondary' %}" class="btn btn-primary">DNS Secondary</a>#}
             </div>
         {% endif %}
         <hr>

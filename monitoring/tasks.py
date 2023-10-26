@@ -39,6 +39,9 @@ def monitor_firing(monitor_id, starts_at: datetime.datetime, annotations: dict):
     if not monitor_obj:
         return
 
+    monitor_obj.firing = True
+    monitor_obj.save()
+
     alert_data = {
         "alert_id": monitor_obj.id,
         "alert_name": monitor_obj.name,
@@ -77,6 +80,9 @@ def monitor_resolved(monitor_id, annotations: dict):
     monitor_obj = models.Monitor.objects.filter(id=monitor_id).first()  # type: models.Monitor
     if not monitor_obj:
         return
+
+    monitor_obj.firing = True
+    monitor_obj.save()
 
     alert_data = {
         "alert_name": monitor_obj.name,

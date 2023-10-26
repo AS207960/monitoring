@@ -6,6 +6,7 @@ import django_keycloak_auth.clients
 import as207960_utils.models
 import base32_crockford
 import secrets
+import ipaddress
 
 
 def make_id():
@@ -183,6 +184,15 @@ class Target(models.Model):
             return self.user
         return as207960_utils.models.get_resource_owner(self.resource_id)
 
+    @property
+    def formatted_ip(self):
+        ip_address = ipaddress.ip_address(self.ip_address)
+        if isinstance(ip_address, ipaddress.IPv6Address):
+            return  f"[{ip_address}]"
+        else:
+            return str(ip_address)
+
+
 
 class Monitor(models.Model):
     TYPE_PING = "ping"
@@ -193,6 +203,8 @@ class Monitor(models.Model):
     TYPE_SMTP = "smtp"
     TYPE_HTTP = "http"
     TYPE_SSH = "ssh"
+    TYPE_DNS = "dns"
+    TYPE_DNS_SECONDARY = "dns-secondary"
 
     TYPES = (
         (TYPE_PING, "Ping (ICMP)"),
@@ -203,6 +215,8 @@ class Monitor(models.Model):
         (TYPE_SMTP, "SMTP"),
         (TYPE_HTTP, "HTTP"),
         (TYPE_SSH, "SSH"),
+        (TYPE_DNS, "DNS (SOA)"),
+        (TYPE_DNS_SECONDARY, "DNS (Secondary)"),
     )
 
     id = as207960_utils.models.TypedUUIDField("monitoring_monitor", primary_key=True)
@@ -285,7 +299,15 @@ class Monitor(models.Model):
                     f"Hostname: {self.monitor_data['hostname']}")
         elif self.monitor_type == self.TYPE_SSH:
             return f"Port: {self.monitor_data['port']}"
-
+        elif self.monitor_type == self.TYPE_DNS:
+            return (f"Port: {self.monitor_data['port']}\n"
+                    f"Zone: {self.monitor_data['zone']}\n"
+                    f"Protocol: {self.monitor_data['protocol']}")
+        elif self.monitor_type == self.TYPE_DNS_SECONDARY:
+            return (f"Port: {self.monitor_data['port']}\n"
+                    f"Zone: {self.monitor_data['zone']}\n"
+                    f"Primary: {self.monitor_data['primary']}\n"
+                    f"Protocol: {self.monitor_data['protocol']}")
 
 class MonitorRecipient(models.Model):
     id = as207960_utils.models.TypedUUIDField("monitoring_monitorrecipient", primary_key=True)

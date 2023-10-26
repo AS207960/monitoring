@@ -12,6 +12,8 @@ urlpatterns = [
     path("monitor/new_smtp/", views.create_monitor_smtp, name="create_monitor_smtp"),
     path("monitor/new_http/", views.create_monitor_http, name="create_monitor_http"),
     path("monitor/new_ssh/", views.create_monitor_ssh, name="create_monitor_ssh"),
+    path("monitor/new_dns/", views.create_monitor_dns, name="create_monitor_dns"),
+    path("monitor/new_dns_secondary/", views.create_monitor_dns_secondary, name="create_monitor_dns_secondary"),
     path("monitor/<monitor_id>/delete/", views.delete_monitor, name="delete_monitor"),
 
     path("alert_group/new/", views.create_alert_group, name="create_alert_group"),
@@ -34,6 +36,7 @@ urlpatterns = [
     path("webhook/telegram/", views.telegram_webhook),
     path("webhook/alert/", views.alert_webhook),
     path("blackbox_sd/", views.blackbox_sd),
+    path("blackbox_dns_sd/", views.blackbox_dns_sd),
     path("metrics", views.prometheus_metrics),
 ]
 

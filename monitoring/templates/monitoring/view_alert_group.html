@@ -60,6 +60,7 @@
                     <th>Name</th>
                     <th>Target</th>
                     <th>Type</th>
+                    <th>Status</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -71,6 +72,13 @@
                             <td>
                                 <b>{{ monitor.get_monitor_type_display }}</b><br/>
                                 {{ monitor.info|linebreaksbr }}
+                            </td>
+                            <td>
+                                {% if monitor.firing %}
+                                    <span class="badge bg-danger">Firing</span>
+                                {% else %}
+                                    <span class="badge bg-success">OK</span>
+                                {% endif %}
                             </td>
                         </tr>
                     {% endfor %}

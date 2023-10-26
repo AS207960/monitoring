@@ -760,6 +760,75 @@ def create_monitor_ssh(request):
 
 
 @login_required
+def create_monitor_dns(request):
+    access_token = django_keycloak_auth.clients.get_active_access_token(oidc_profile=request.user.oidc_profile)
+    can_create_monitor = models.Monitor.has_class_scope(access_token, 'create')
+
+    if not can_create_monitor:
+        raise PermissionDenied()
+
+    if request.method == "POST":
+        form = forms.CreateMonitorDNS(request.POST, user=request.user)
+        if form.is_valid():
+            monitor = models.Monitor(
+                name=form.cleaned_data["name"],
+                target=form.cleaned_data["target"],
+                alert_group=form.cleaned_data["alert_group"],
+                monitor_type=models.Monitor.TYPE_HTTP,
+                monitor_data={
+                    "port": form.cleaned_data["port"],
+                    "zone": form.cleaned_data["zone"],
+                    "protocol": form.cleaned_data["protocol"],
+                },
+                user=request.user
+            )
+            monitor.save()
+            return redirect('index')
+    else:
+        form = forms.CreateMonitorDNS(user=request.user)
+
+    return render(request, "monitoring/create_monitor.html", {
+        "title": f"Create DNS monitor",
+        "form": form,
+    })
+
+
+@login_required
+def create_monitor_dns_secondary(request):
+    access_token = django_keycloak_auth.clients.get_active_access_token(oidc_profile=request.user.oidc_profile)
+    can_create_monitor = models.Monitor.has_class_scope(access_token, 'create')
+
+    if not can_create_monitor:
+        raise PermissionDenied()
+
+    if request.method == "POST":
+        form = forms.CreateMonitorDNSSecondary(request.POST, user=request.user)
+        if form.is_valid():
+            monitor = models.Monitor(
+                name=form.cleaned_data["name"],
+                target=form.cleaned_data["target"],
+                alert_group=form.cleaned_data["alert_group"],
+                monitor_type=models.Monitor.TYPE_HTTP,
+                monitor_data={
+                    "port": form.cleaned_data["port"],
+                    "zone": form.cleaned_data["zone"],
+                    "protocol": form.cleaned_data["protocol"],
+                    "secondary": form.cleaned_data["secondary"],
+                },
+                user=request.user
+            )
+            monitor.save()
+            return redirect('index')
+    else:
+        form = forms.CreateMonitorDNSSecondary(user=request.user)
+
+    return render(request, "monitoring/create_monitor.html", {
+        "title": f"Create DNS secondary monitor",
+        "form": form,
+    })
+
+
+@login_required
 def delete_monitor(request, monitor_id):
     access_token = django_keycloak_auth.clients.get_active_access_token(oidc_profile=request.user.oidc_profile)
     monitor_obj = get_object_or_404(models.Monitor, id=monitor_id)
@@ -777,8 +846,7 @@ def delete_monitor(request, monitor_id):
     })
 
 
-@csrf_exempt
-def blackbox_sd(request):
+def check_sd_auth(request):
     authorization_header = request.headers.get("Authorization")
     if not authorization_header:
         return HttpResponse("Authorization header missing", status=401)
@@ -792,14 +860,17 @@ def blackbox_sd(request):
             .eval_permission(access_token, "service-discovery", "fetch"):
         return HttpResponse("Permission denied", status=403)
 
+
+@csrf_exempt
+def blackbox_sd(request):
+    auth = check_sd_auth(request)
+    if auth:
+        return auth
+
     configs = []
 
     for monitor in models.Monitor.objects.all():
-        ip_address = ipaddress.ip_address(monitor.target.ip_address)
-        if isinstance(ip_address, ipaddress.IPv6Address):
-            formatted_ip = f"[{ip_address}]"
-        else:
-            formatted_ip = str(ip_address)
+        formatted_ip = monitor.target.formatted_ip
 
         if monitor.monitor_type == models.Monitor.TYPE_PING:
             configs.append({
@@ -906,6 +977,44 @@ def blackbox_sd(request):
                     "monitor_id": str(monitor.id),
                     "monitor": "ssh",
                     "__param_module": "ssh_banner"
+                }
+            })
+
+    return HttpResponse(json.dumps(configs), content_type="application/json")
+
+
+@csrf_exempt
+def blackbox_dns_sd(request):
+    auth = check_sd_auth(request)
+    if auth:
+        return auth
+
+    configs = []
+
+    for monitor in models.Monitor.objects.all():
+        formatted_ip = monitor.target.formatted_ip
+
+        if monitor.monitor_type == models.Monitor.TYPE_DNS:
+            configs.append({
+                "targets": [f"{formatted_ip}:{monitor.monitor_data['port']}"],
+                "labels": {
+                    "monitor_id": str(monitor.id),
+                    "monitor": "dns",
+                    "__param_type": "soa",
+                    "__param_domain": monitor.monitor_data['zone'],
+                    "__param_proto": monitor.monitor_data['protocol'],
+                }
+            })
+        elif monitor.monitor_type == models.Monitor.TYPE_DNS_SECONDARY:
+            configs.append({
+                "targets": [f"{formatted_ip}:{monitor.monitor_data['port']}"],
+                "labels": {
+                    "monitor_id": str(monitor.id),
+                    "monitor": "tcp",
+                    "__param_type": "secondary",
+                    "__param_domain": monitor.monitor_data['zone'],
+                    "__param_proto": monitor.monitor_data['protocol'],
+                    "__param_primary": monitor.monitor_data['primary'],
                 }
             })
 
