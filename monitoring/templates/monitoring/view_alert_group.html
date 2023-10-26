@@ -46,6 +46,7 @@
                 <a href="{% url 'alert_group_add_slack' alert_group.id %}" class="btn btn-lg btn-primary">Slack</a>
                 <a href="{% url 'alert_group_add_telegram' alert_group.id %}" class="btn btn-lg btn-primary">Telegram</a>
                 <a href="{% url 'alert_group_add_webhook' alert_group.id %}" class="btn btn-lg btn-primary">Webhook</a>
+                <a href="{% url 'alert_group_add_prometheus' alert_group.id %}" class="btn btn-lg btn-primary">Prometheus</a>
             </div>
         {% endif %}
     </div>

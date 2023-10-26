@@ -175,6 +175,8 @@ WEBHOOK_SECRET_KEY = cryptography.hazmat.primitives.asymmetric.ed25519.Ed25519Pr
 
 ALERT_WEBHOOK_TOKEN = os.getenv("ALERT_WEBHOOK_TOKEN")
 
+PROMETHEUS_URL = os.getenv("PROMETHEUS_URL")
+
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
 CELERY_RESULT_BACKEND = "rpc://"

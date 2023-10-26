@@ -71,6 +71,7 @@ class AlertTarget(models.Model):
     TYPE_SLACK = "slack"
     TYPE_TELEGRAM = "telegram"
     TYPE_WEBHOOK = "webhook"
+    TYPE_PROMETHEUS = "prometheus"
 
     TYPES = (
         (TYPE_EMAIL, "Email"),
@@ -80,6 +81,7 @@ class AlertTarget(models.Model):
         (TYPE_SLACK, "Slack"),
         (TYPE_TELEGRAM, "Telegram"),
         (TYPE_WEBHOOK, "Webhook"),
+        (TYPE_PROMETHEUS, "Prometheus"),
     )
 
     id = as207960_utils.models.TypedUUIDField("monitoring_alerttarget", primary_key=True)
@@ -123,6 +125,8 @@ class AlertTarget(models.Model):
                     return data["result"]["title"]
         elif self.target_type == self.TYPE_WEBHOOK:
             return self.target_data['url']
+        elif self.target_type == self.TYPE_PROMETHEUS:
+            return f"Access token: {self.target_data['token']}"
 
     def __str__(self):
         return f"{self.get_target_type_display()} - {self.recipient}"
@@ -203,8 +207,8 @@ class Monitor(models.Model):
 
     id = as207960_utils.models.TypedUUIDField("monitoring_monitor", primary_key=True)
     name = models.CharField(max_length=255)
-    target = models.ForeignKey(Target, on_delete=models.CASCADE)
-    alert_group = models.ForeignKey(AlertGroup, on_delete=models.CASCADE)
+    target = models.ForeignKey(Target, on_delete=models.CASCADE, related_name="monitors")
+    alert_group = models.ForeignKey(AlertGroup, on_delete=models.CASCADE, related_name="monitors")
     monitor_type = models.CharField(max_length=32, choices=TYPES)
     monitor_data = models.JSONField()
     firing = models.BooleanField(blank=True, null=False, default=False)

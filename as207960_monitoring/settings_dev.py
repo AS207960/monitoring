@@ -164,4 +164,6 @@ WEBHOOK_SECRET_KEY = cryptography.hazmat.primitives.asymmetric.ed25519.Ed25519Pr
 
 ALERT_WEBHOOK_TOKEN = webhook_conf["alert_token"]
 
+PROMETHEUS_URL = "http://mimir:9009/prometheus"
+
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")

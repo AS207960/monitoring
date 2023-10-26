@@ -24,6 +24,7 @@ urlpatterns = [
     path("alert_group/<ag_id>/add_slack/", views.alert_group_add_slack, name="alert_group_add_slack"),
     path("alert_group/<ag_id>/add_telegram/", views.alert_group_add_telegram, name="alert_group_add_telegram"),
     path("alert_group/<ag_id>/add_webhook/", views.alert_group_add_webhook, name="alert_group_add_webhook"),
+    path("alert_group/<ag_id>/add_prometheus/", views.alert_group_add_prometheus, name="alert_group_add_prometheus"),
     path("alert_target/<target_id>/delete/", views.alert_group_delete_target, name="alert_group_delete_target"),
 
     path("monitoring_admin/", views.admin_index, name="admin_index"),
@@ -33,5 +34,6 @@ urlpatterns = [
     path("webhook/telegram/", views.telegram_webhook),
     path("webhook/alert/", views.alert_webhook),
     path("blackbox_sd/", views.blackbox_sd),
+    path("metrics", views.prometheus_metrics),
 ]
 

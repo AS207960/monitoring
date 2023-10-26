@@ -1,10 +1,9 @@
 import datetime
 import ipaddress
-
+import secrets
 import django_keycloak_auth.clients
 from django.conf import settings
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required, permission_required
 from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse
@@ -360,6 +359,36 @@ def alert_group_add_webhook(request, ag_id):
     return render(request, "monitoring/alert_group_add_target.html", {
         "title": f"Add webhook to alert group {ag_obj.name}",
         "form": form
+    })
+
+
+@login_required
+def alert_group_add_prometheus(request, ag_id):
+    access_token = django_keycloak_auth.clients.get_active_access_token(oidc_profile=request.user.oidc_profile)
+    ag_obj = get_object_or_404(models.AlertGroup, id=ag_id)
+
+    if not ag_obj.has_scope(access_token, 'edit'):
+        raise PermissionDenied()
+
+    token = secrets.token_hex(16)
+
+    if request.method == "POST":
+        new_token = request.POST.get("token")
+        if request.POST.get("create") == "true" and new_token:
+            target = models.AlertTarget(
+                group=ag_obj,
+                target_type=models.AlertTarget.TYPE_PROMETHEUS,
+                target_data={
+                    "token": new_token
+                }
+            )
+            target.save()
+            return redirect('alert_group', ag_obj.id)
+
+    return render(request, "monitoring/alert_group_add_target_prometheus.html", {
+        "title": f"Add Prometheus metrics to alert group {ag_obj.name}",
+        "token": token,
+        "external_url": settings.EXTERNAL_URL_BASE
     })
 
 
@@ -919,3 +948,51 @@ def alert_webhook(request):
 
     return HttpResponse("", status=202)
 
+
+@csrf_exempt
+def prometheus_metrics(request):
+    authorization_header = request.headers.get("Authorization")
+    if not authorization_header:
+        return HttpResponse("Authorization header missing", status=401)
+
+    if not authorization_header.startswith("Bearer "):
+        return HttpResponse("Authorization header invalid", status=401)
+
+    access_token = authorization_header[7:]
+    target = models.AlertTarget.objects.filter(
+        target_type=models.AlertTarget.TYPE_PROMETHEUS,
+        target_data__token=access_token
+    ).first()
+    if target is None:
+        return HttpResponse("Permission denied", status=403)
+
+    monitors = target.group.monitors.all()
+    monitor_ids = []
+    for monitor in monitors:
+        monitor_ids.append(str(monitor.id))
+
+    monitor_ids = "|".join(monitor_ids)
+    r = requests.get(f"{settings.PROMETHEUS_URL}/api/v1/query", headers={
+        "X-Scope-OrgID": "as207960"
+    }, params={
+        "query": f"{{monitor_id=~\"{monitor_ids}\"}}"
+    })
+    if r.status_code != 200:
+        return HttpResponse("Failed to fetch metrics", status=500)
+
+    data = r.json()
+
+    if data["data"]["resultType"] != "vector":
+        return HttpResponse("Internal server error", status=500)
+
+    out = []
+    for result in data["data"]["result"]:
+        name = result["metric"]["__name__"]
+        value = result['value'][1]
+        if not name.startswith("probe_"):
+            continue
+
+        labels = ",".join([f'{k}="{v}"' for k, v in result["metric"].items() if k not in ("__name__", "job")])
+        out.append(f"{name}{{{labels}}} {value}")
+
+    return HttpResponse("\n".join(out), content_type="text/plain")

@@ -23,6 +23,7 @@ data:
   EMAIL_PORT: "25"
   EMAIL_FROM: "Glauca Monitoring <monitoring@glauca.digital>"
   EMAIL_HOST_USER: "as207960/main"
+  PROMETHEUS_URL: "http://mimir.metrics:9009/prometheus"
 ---
 apiVersion: apps/v1
 kind: Deployment
