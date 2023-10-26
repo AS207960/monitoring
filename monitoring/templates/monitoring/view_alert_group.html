@@ -41,13 +41,46 @@
                 <a href="{% url 'alert_group_add_email' alert_group.id %}" class="btn btn-lg btn-primary">Email</a>
                 <a href="#" class="btn btn-lg btn-secondary disabled">
                     <span style="text-decoration: line-through;">SMS</span> Coming soon</a>
-                <a href="{% url 'alert_group_add_pushover' alert_group.id %}" class="btn btn-lg btn-primary">Pushover</a>
+                <a href="{% url 'alert_group_add_pushover' alert_group.id %}"
+                   class="btn btn-lg btn-primary">Pushover</a>
                 <a href="{% url 'alert_group_add_discord' alert_group.id %}" class="btn btn-lg btn-primary">Discord</a>
                 <a href="{% url 'alert_group_add_slack' alert_group.id %}" class="btn btn-lg btn-primary">Slack</a>
-                <a href="{% url 'alert_group_add_telegram' alert_group.id %}" class="btn btn-lg btn-primary">Telegram</a>
+                <a href="{% url 'alert_group_add_telegram' alert_group.id %}"
+                   class="btn btn-lg btn-primary">Telegram</a>
                 <a href="{% url 'alert_group_add_webhook' alert_group.id %}" class="btn btn-lg btn-primary">Webhook</a>
                 <a href="{% url 'alert_group_add_prometheus' alert_group.id %}" class="btn btn-lg btn-primary">Prometheus</a>
             </div>
         {% endif %}
+        <hr/>
+        <h2>Monitors</h2>
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead class="table-dark">
+                <tr>
+                    <th>Name</th>
+                    <th>Target</th>
+                    <th>Type</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% if monitors %}
+                    {% for monitor in monitors %}
+                        <tr>
+                            <th scope="row">{{ monitor.name }}</th>
+                            <td>{{ monitor.target }}</td>
+                            <td>
+                                <b>{{ monitor.get_monitor_type_display }}</b><br/>
+                                {{ monitor.info|linebreaksbr }}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="5">No monitors</td>
+                    </tr>
+                {% endif %}
+                </tbody>
+            </table>
+        </div>
     </div>
 {% endblock %}

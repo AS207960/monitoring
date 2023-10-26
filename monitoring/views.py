@@ -88,10 +88,12 @@ def view_alert_group(request, ag_id):
 
     can_edit = ag_obj.has_scope(access_token, 'edit')
     targets = ag_obj.alerttarget_set.all()
+    monitors = ag_obj.monitors.all()
 
     return render(request, "monitoring/view_alert_group.html", {
         "alert_group": ag_obj,
         "targets": targets,
+        "monitors": monitors,
         "can_edit": can_edit,
     })
 
