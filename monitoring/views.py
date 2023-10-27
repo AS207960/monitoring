@@ -1103,7 +1103,9 @@ def prometheus_metrics(request):
         if not name.startswith("probe_"):
             continue
 
-        labels = ",".join([f'{k}="{v}"' for k, v in result["metric"].items() if k not in ("__name__", "job")])
+        labels = ",".join([
+            f'{k}="{v}"' for k, v in result["metric"].items() if k not in ("__name__", "job", "instance")
+        ])
         out.append(f"{name}{{{labels}}} {value}")
 
     return HttpResponse("\n".join(out), content_type="text/plain")
