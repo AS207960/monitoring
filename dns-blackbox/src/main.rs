@@ -47,19 +47,25 @@ async fn run_dns_probe(server: &str, domain: &str, proto: Protocol) -> DnsProbeR
             let mut rng = thread_rng();
             match a.choose(&mut rng) {
                 Some(addr) => addr,
-                _ => return DnsProbeResult {
-                    started: start.elapsed(),
-                    valid_domain: true,
-                    ip_proto: 0,
-                    soa: None,
+                _ => {
+                    warn!("No address found for {}", server);
+                    return DnsProbeResult {
+                        started: start.elapsed(),
+                        valid_domain: true,
+                        ip_proto: 0,
+                        soa: None,
+                    }
                 }
             }
         },
-        _ => return DnsProbeResult {
-            started: start.elapsed(),
-            valid_domain: true,
-            ip_proto: 0,
-            soa: None,
+        Err(err) => {
+            warn!("Failed to lookup {}: {}", server, err);
+            return DnsProbeResult {
+                started: start.elapsed(),
+                valid_domain: true,
+                ip_proto: 0,
+                soa: None,
+            }
         }
     };
 
@@ -79,11 +85,14 @@ async fn run_dns_probe(server: &str, domain: &str, proto: Protocol) -> DnsProbeR
                     tokio::spawn(handle);
                     conn
                 },
-                Err(_) => return DnsProbeResult {
-                    started: start.elapsed(),
-                    valid_domain: true,
-                    ip_proto,
-                    soa: None,
+                Err(err) => {
+                    warn!("Failed to connect to {} ({}): {}", server, server_address, err);
+                    return DnsProbeResult {
+                        started: start.elapsed(),
+                        valid_domain: true,
+                        ip_proto,
+                        soa: None,
+                    }
                 }
             }
         },
@@ -98,31 +107,38 @@ async fn run_dns_probe(server: &str, domain: &str, proto: Protocol) -> DnsProbeR
                     tokio::spawn(handle);
                     conn
                 },
-                Err(_) => return DnsProbeResult {
-                    started: start.elapsed(),
-                    valid_domain: true,
-                    ip_proto,
-                    soa: None,
+                Err(err) => {
+                    warn!("Failed to connect to {} ({}): {}", server, server_address, err);
+                    return DnsProbeResult {
+                        started: start.elapsed(),
+                        valid_domain: true,
+                        ip_proto,
+                        soa: None,
+                    }
                 }
             }
         },
     };
 
     let response = match client.query(
-        domain,
+        domain.clone(),
         trust_dns_client::rr::DNSClass::IN,
         trust_dns_client::rr::RecordType::SOA,
     ).await {
         Ok(response) => response,
-        Err(_) => return DnsProbeResult {
-            started: start.elapsed(),
-            valid_domain: true,
-            ip_proto,
-            soa: None,
+        Err(err) => {
+            warn!("Failed to query {} ({}) for {}: {}", server, server_address, domain, err);
+            return DnsProbeResult {
+                started: start.elapsed(),
+                valid_domain: true,
+                ip_proto,
+                soa: None,
+            }
         }
     };
 
     if !response.contains_answer() {
+        warn!("No answer from {} ({}) for {}", server, server_address, domain);
         return DnsProbeResult {
             started: start.elapsed(),
             valid_domain: true,
@@ -133,6 +149,7 @@ async fn run_dns_probe(server: &str, domain: &str, proto: Protocol) -> DnsProbeR
 
     let answers: Vec<_> = response.answers().iter().collect();
     if answers.len() != 1 {
+        warn!("Multiple answers from {} ({}) for {}", server, server_address, domain);
         return DnsProbeResult {
             started: start.elapsed(),
             valid_domain: true,
@@ -143,7 +160,10 @@ async fn run_dns_probe(server: &str, domain: &str, proto: Protocol) -> DnsProbeR
 
     let soa = match answers[0].data() {
         Some(trust_dns_client::rr::RData::SOA(soa)) => Some(soa.serial()),
-        _ => None,
+        _ => {
+            warn!("Invalid answer from {} ({}) for {}", server, server_address, domain);
+            None
+        },
     };
 
     DnsProbeResult {
