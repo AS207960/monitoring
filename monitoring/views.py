@@ -774,7 +774,7 @@ def create_monitor_dns(request):
                 name=form.cleaned_data["name"],
                 target=form.cleaned_data["target"],
                 alert_group=form.cleaned_data["alert_group"],
-                monitor_type=models.Monitor.TYPE_HTTP,
+                monitor_type=models.Monitor.TYPE_DNS,
                 monitor_data={
                     "port": form.cleaned_data["port"],
                     "zone": form.cleaned_data["zone"],
@@ -808,12 +808,12 @@ def create_monitor_dns_secondary(request):
                 name=form.cleaned_data["name"],
                 target=form.cleaned_data["target"],
                 alert_group=form.cleaned_data["alert_group"],
-                monitor_type=models.Monitor.TYPE_HTTP,
+                monitor_type=models.Monitor.TYPE_DNS_SECONDARY,
                 monitor_data={
                     "port": form.cleaned_data["port"],
                     "zone": form.cleaned_data["zone"],
                     "protocol": form.cleaned_data["protocol"],
-                    "secondary": form.cleaned_data["secondary"],
+                    "primary": form.cleaned_data["primary"],
                 },
                 user=request.user
             )
