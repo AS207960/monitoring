@@ -1,0 +1,6 @@
+.gitignore
+.git
+dns-blackbox
+kubes
+secrets
+venv

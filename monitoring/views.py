@@ -1010,7 +1010,7 @@ def blackbox_dns_sd(request):
                 "targets": [f"{formatted_ip}:{monitor.monitor_data['port']}"],
                 "labels": {
                     "monitor_id": str(monitor.id),
-                    "monitor": "tcp",
+                    "monitor": "dns-secondary",
                     "__param_type": "secondary",
                     "__param_domain": monitor.monitor_data['zone'],
                     "__param_proto": monitor.monitor_data['protocol'],
