@@ -121,7 +121,11 @@ class AlertTarget(models.Model):
             else:
                 data = r.json()
                 if data["result"]["type"] == "private":
-                    return f"@{data['result']['username']}"
+                    if "username" in data["result"]:
+                        return f"@{data['result']['username']}"
+                    if "first_name" in data["result"]:
+                        return data["result"]["first_name"]
+                    return "Unknown user"
                 else:
                     return data["result"]["title"]
         elif self.target_type == self.TYPE_WEBHOOK:
